@@ -19,9 +19,10 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Get source code...'
-                git branch: 'example', url: 'https://github.com/ginesros/GatekeeperCI.git'
+                git url: 'https://github.com/ginesros/GatekeeperCI.git'
             }
         }
+
 
         stage('Initialize') {
             steps {
@@ -38,7 +39,8 @@ pipeline {
                     ${SCANNER_HOME}/bin/sonar-scanner \
                       -Dsonar.projectKey=my-infra \
                       -Dsonar.projectName="My Infra" \
-                      -Dsonar.sources=.
+                      -Dsonar.sources=. \
+                      -Dsonar.inclusions="**/*.tf"
                     """
                 }
                 
