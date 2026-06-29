@@ -6,7 +6,7 @@ import sys
 
 def main():
     reports_dir = os.environ.get('REPORTS_DIR', 'reports')
-    ollama_url = os.environ.get('OLLAMA_URL', 'http://172.17.0.13:11434/api/generate')
+    ollama_url = os.environ.get('OLLAMA_URL', 'http://172.17.0.11:11434/api/generate')
     llm_model = os.environ.get('LLM_MODEL', 'qwen2.5-coder:7b')
     
     print(f"[*] Starting AI Security Review using model {llm_model} at {ollama_url}")

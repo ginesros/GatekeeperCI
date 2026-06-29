@@ -40,12 +40,19 @@ pipeline {
                       -Dsonar.projectName="My Infra" \
                       -Dsonar.sources=.
                     """
-                    
-                    // Fetch SonarQube issues via API and save to REPORTS_DIR
-                    // Assuming SONAR_HOST_URL and SONAR_TOKEN are provided by withSonarQubeEnv
+                }
+                
+                // Wait for the SonarQube server to finish processing the background task
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
+                }
+                
+                // Fetch SonarQube issues via API after the quality gate is calculated
+                // The withSonarQubeEnv step injects SONAR_HOST_URL and SONAR_AUTH_TOKEN
+                withSonarQubeEnv('sonar-local') {
                     sh """
                     echo "Extracting SonarQube report..."
-                    curl -s -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/search?componentKeys=my-infra&ps=500" > ${REPORTS_DIR}/sonarqube.json || echo "Failed to fetch SonarQube report"
+                    curl -s -u "\${SONAR_AUTH_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/search?componentKeys=my-infra&ps=500" > ${REPORTS_DIR}/sonarqube.json || echo "Failed to fetch SonarQube report"
                     """
                 }
             }
@@ -79,27 +86,20 @@ pipeline {
         
         stage('AI Security Review') {
             steps {
-                script {
-                    // Extract scripts from Jenkins Shared Library to the workspace
-                    def pyScript = libraryResource 'ai_bridge/gatekeeper_ai.py'
-                    def reqFile = libraryResource 'ai_bridge/requirements.txt'
+                // The script lives in this repo (src/ai_bridge/), so it is available
+                // in the workspace after the Checkout stage runs.
+                // OLLAMA_URL and LLM_MODEL are injected as Jenkins Global Environment Variables.
+                sh """
+                    echo "Setting up Python virtual environment..."
+                    python3 -m venv venv
                     
-                    writeFile file: 'gatekeeper_ai.py', text: pyScript
-                    writeFile file: 'requirements.txt', text: reqFile
+                    echo "Activating venv and installing dependencies..."
+                    . venv/bin/activate
+                    pip install -r src/ai_bridge/requirements.txt
                     
-                    sh """
-                        echo "Setting up Python virtual environment..."
-                        # Create venv assuming python3 and python3-venv are installed on the Jenkins host
-                        python3 -m venv venv
-                        
-                        echo "Activating venv and installing dependencies..."
-                        . venv/bin/activate
-                        pip install -r requirements.txt
-                        
-                        echo "Running AI Bridge script..."
-                        python gatekeeper_ai.py
-                    """
-                }
+                    echo "Running AI Security Review..."
+                    python src/ai_bridge/gatekeeper_ai.py
+                """
             }
         }
     }
