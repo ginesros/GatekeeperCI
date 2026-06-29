@@ -8,7 +8,7 @@ pipeline {
         
         // AI Provider configuration
         LLM_MODEL = 'qwen2.5-coder:7b'
-        OLLAMA_URL = 'http://172.17.0.13:11434/api/generate'
+        //OLLAMA_URL = 'http://172.17.0.11:11434/api/generate'
         
         // Directory to store reports
         REPORTS_DIR = 'reports'
@@ -19,7 +19,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Get source code...'
-                git url: 'https://github.com/ginesros/GatekeeperCI.git'
+                git branch: 'main', url: 'https://github.com/ginesros/GatekeeperCI.git'
             }
         }
 
