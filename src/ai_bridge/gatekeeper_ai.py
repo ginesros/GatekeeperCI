@@ -142,7 +142,7 @@ def query_llm(url: str, model: str, prompt: str, timeout: int) -> str:
         "stream": False,
         "options": {
             # Limit output length to speed up response on CPU-only machines
-            "num_predict": 512,
+            "num_predict": 1024,
         },
     }
     response = requests.post(url, json=payload, timeout=timeout)
@@ -159,7 +159,7 @@ def main():
     ollama_url  = os.environ.get('OLLAMA_URL',  'http://172.17.0.11:11434/api/generate')
     llm_model   = os.environ.get('LLM_MODEL',   'qwen2.5-coder:7b')
     # Generous timeout: CPU inference at ~5 t/s needs time.
-    # num_predict=512 @ 5 t/s ≈ 102s + prompt processing.
+    # num_predict=1024 @ 5 t/s ≈ 204s + prompt processing.
     llm_timeout = int(os.environ.get('LLM_TIMEOUT', '300'))
 
     print(f"[*] Starting AI Security Review — model: {llm_model} | endpoint: {ollama_url}")
