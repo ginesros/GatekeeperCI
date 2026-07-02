@@ -106,7 +106,10 @@ pipeline {
 
                         echo "Running Trivy IaC scan..."
                         ${TRIVY_BIN} config . \
-                            --include-paths "**/*.tf" \
+                            --misconfig-scanners terraform \
+                            --skip-dirs venv \
+                            --skip-dirs .scannerwork \
+                            --skip-dirs ${REPORTS_DIR} \
                             --format json \
                             --output ${REPORTS_DIR}/trivy.json \
                             --exit-code 0
