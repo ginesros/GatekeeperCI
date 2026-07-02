@@ -156,7 +156,7 @@ def query_llm(url: str, model: str, prompt: str, timeout: int) -> str:
 
 def main():
     reports_dir = os.environ.get('REPORTS_DIR', 'reports')
-    ollama_url  = os.environ.get('OLLAMA_URL',  'http://172.17.0.11:11434/api/generate')
+    ollama_url  = os.environ.get('OLLAMA_URL',  'http://localhost:11434/api/generate')
     llm_model   = os.environ.get('LLM_MODEL',   'qwen2.5-coder:7b')
     # Generous timeout: CPU inference at ~5 t/s needs time.
     # num_predict=1024 @ 5 t/s ≈ 204s + prompt processing.
